@@ -1,0 +1,25 @@
+apiVersion: v2
+name: voice-agent
+description: Voice Agent - Natural Conversation with Whisper ASR + XTTS v2 TTS
+
+type: application
+
+# Chart version
+version: 4.1.0
+
+# Application version
+appVersion: "4.1.0"
+
+keywords:
+  - voice-agent
+  - whisper
+  - xtts
+  - tts
+  - asr
+  - multilingual
+  - interrupt
+  - vad
+  - monitoring
+
+maintainers:
+  - name: Liav
