@@ -143,7 +143,12 @@ class SimpleCache:
         return None
     
     def set(self, key: str, value, ttl: int = None):
-        """Set value in cache with TTL"""
+        """Set value in cache with TTL (only if value is valid)"""
+        if value is None:
+            return
+        if isinstance(value, (bytes, str)) and len(value) == 0:
+            return
+
         expiry = time.time() + (ttl or self._ttl)
         self._cache[key] = (value, expiry)
     
@@ -384,6 +389,10 @@ NUMBER_WORDS = {
         'शून्य': '0', 'एक': '1', 'दो': '2', 'तीन': '3', 'चार': '4',
         'पांच': '5', 'छह': '6', 'सात': '7', 'आठ': '8', 'नौ': '9',
     },
+    'el': {
+        'μηδέν': '0', 'ένα': '1', 'δύο': '2', 'τρία': '3', 'τέσσερα': '4',
+        'πέντε': '5', 'έξι': '6', 'επτά': '7', 'οκτώ': '8', 'εννέα': '9',
+    },
 }
 
 # =============================================================================
@@ -508,6 +517,13 @@ NEGATIVE_SENTIMENT_KEYWORDS = {
         'dhokha', 'scam', 'faltu', 'samay ki barbadi', 'thak gaya',
         'sharm', 'kabhi nahi', 'kharab', 'dheema', 'gandi service',
         'kaam nahi kar raha', 'chhod raha hu', 'band karo',
+    ],
+    'el': [
+        'θυμωμένος', 'νευριασμένος', 'απογοητευμένος', 'απαίσιος', 'χάλια', 'χειρότερος',
+        'μισώ', 'απαράδεκτο', 'γελοίο', 'ακύρωση', 'φεύγω', 'επιστροφή χρημάτων',
+        'παράπονο', 'διευθυντής', 'δικηγόρος', 'απάτη', 'άχρηστο', 'χάσιμο χρόνου',
+        'κουράστηκα', 'ντροπή', 'ποτέ ξανά', 'χαλασμένο', 'αργό', 'κακή εξυπηρέτηση',
+        'αγένεια', 'δεν δουλεύει', 'ανταγωνιστής', 'τερματισμός', 'καταστροφή',
     ]
 }
 
@@ -584,6 +600,11 @@ CHURN_INDICATORS = {
         'genoeg gehad', 'laatste kans', 'laatste waarschuwing', 'service stoppen',
         'contract beëindigen', 'uitschrijven', 'account verwijderen', 'te duur',
         'beter gevonden', 'goedkoper', 'niet waard', 'geldverspilling'
+    ],
+    'el': [
+        'ακύρωση συνδρομής', 'κλείσιμο λογαριασμού', 'αλλαγή σε', 'πάω αλλού',
+        'αρκετά', 'τελευταία ευκαιρία', 'διακοπή υπηρεσίας', 'διαγραφή λογαριασμού',
+        'πολύ ακριβό', 'βρήκα καλύτερο', 'φθηνότερο αλλού', 'δεν αξίζει', 'πεταμένα λεφτά'
     ],
 }
 
@@ -875,6 +896,50 @@ NATURAL_RESPONSES = {
             "הכל מסודר. פתחתי קריאה מספר {id} עם הפרטים שמסרת.",
         ],
     },
+    "el": {
+        "greeting_new": [
+            "Γεια σας! Καλώς ήρθατε. Χρειάζομαι μια γρήγορη επαλήθευση - μπορείτε να μου πείτε τον τετραψήφιο κωδικό PIN;",
+        ],
+        "greeting_returning": [
+            "Γεια σου {name}! Χαίρομαι που σε ξανακούω. Πώς μπορώ να βοηθήσω σήμερα;",
+        ],
+        "pin_invalid": [
+            "Αυτό το PIN δεν ταιριάζει. Έχετε ακόμη {remaining} προσπάθειες. Θέλετε να προσπαθήσετε ξανά;",
+        ],
+        "pin_unclear": [
+            "Συγγνώμη, δεν το άκουσα καλά. Μπορείτε να επαναλάβετε το PIN;",
+        ],
+        "pin_locked": [
+            "Λυπάμαι, φτάσατε το όριο προσπαθειών. Θα πρέπει να επικοινωνήσετε με την υποστήριξη.",
+        ],
+        "upgrade_ask_plan": [
+            "Βεβαίως! Σκέφτεστε για Standard ή Premium;",
+        ],
+        "upgrade_confirm": [
+            "Τέλεια, θέλετε αναβάθμιση σε {plan}. Να προχωρήσω στο αίτημα;",
+        ],
+        "upgrade_submitted": [
+            "Έγινε! Υπέβαλα το αίτημα αναβάθμισης σε {plan}. Ένας εκπρόσωπος θα σας καλέσει σύντομα.",
+        ],
+        "upgrade_cancelled": [
+            "Κανένα πρόβλημα! Πείτε μου αν αλλάξετε γνώμη.",
+        ],
+        "info_not_found": [
+            "Δεν βρήκα πληροφορίες για {type}. Θέλετε να ψάξω κάτι άλλο;",
+        ],
+        "query_error": [
+            "Αντιμετώπισα ένα μικρό πρόβλημα. Να προσπαθήσουμε ξανά;",
+        ],
+        "goodbye": [
+            "Γεια σας! Καλέστε μας ξανά αν χρειαστείτε κάτι.",
+        ],
+        "ticket_ask_details": [
+            "Βεβαίως, μπορώ να ανοίξω ένα αίτημα. Ποιος είναι ο λόγος; Περιγράψτε μου το πρόβλημα.",
+        ],
+        "ticket_created": [
+            "Άνοιξα το αίτημα για εσάς. Ο αριθμός είναι {id}. Η ομάδα μας θα το κοιτάξει σύντομα.",
+        ],
+    },
 }
 
 def get_natural_response(key, lang="en", **kwargs):
@@ -885,6 +950,100 @@ def get_natural_response(key, lang="en", **kwargs):
     templates = lang_responses.get(key, NATURAL_RESPONSES.get("en", {}).get(key, ["I'm here to help."]))
     template = random.choice(templates)
     return template.format(**kwargs) if kwargs else template
+
+
+QUERY_RESPONSE_TEMPLATES = {
+    "en": {
+        "subscription_active": "You're on the {plan} plan, {name}. That's {price} dollars a month with auto-renewal {auto_renew}.",
+        "subscription_inactive": "Your {plan} subscription is currently {status}.",
+        "balance_overdue": "Looks like you have {overdue} dollars overdue, {name}. Want me to help you sort that out?",
+        "balance_pending": "You've got {pending} dollars pending, {name}. Nothing overdue though!",
+        "balance_clear": "Good news, {name}! Your balance is all clear.",
+        "invoices_single": "You've got one invoice for {amount} dollars, and it's {status}.",
+        "invoices_multiple": "I see {count} invoices. Your most recent one is {amount} dollars, currently {status}.",
+        "plan_details": "You're on {name_plan} at {price} dollars per month. You've got {data} gigs of data and {support} level support.",
+        "tickets_open": "You have {count} open ticket{plural}, {name}. The most recent is about {subject}.",
+        "tickets_resolved": "Good news - all your {count} support tickets have been resolved!",
+        "tickets_none": "You don't have any support tickets on file.",
+        "customer_info": "Your account email is {email} and phone is {phone}.",
+        "default": "Here's what I found for you."
+    },
+    "el": {
+        "subscription_active": "Είστε στο πρόγραμμα {plan}, {name}. Είναι {price} δολάρια το μήνα με αυτόματη ανανέωση {auto_renew}.",
+        "subscription_inactive": "Η συνδρομή σας στο {plan} είναι αυτή τη στιγμή {status}.",
+        "balance_overdue": "Φαίνεται ότι έχετε {overdue} δολάρια ληξιπρόθεσμα, {name}. Θέλετε να σας βοηθήσω;",
+        "balance_pending": "Έχετε {pending} δολάρια σε εκκρεμότητα, {name}. Τίποτα ληξιπρόθεσμο όμως!",
+        "balance_clear": "Καλά νέα, {name}! Το υπόλοιπό σας είναι μηδενικό.",
+        "invoices_single": "Έχετε ένα τιμολόγιο {amount} δολαρίων, και είναι {status}.",
+        "invoices_multiple": "Βλέπω {count} τιμολόγια. Το πιο πρόσφατο είναι {amount} δολάρια, {status}.",
+        "plan_details": "Είστε στο {name_plan} με {price} δολάρια το μήνα. Έχετε {data} GB δεδομένων και υποστήριξη επιπέδου {support}.",
+        "tickets_open": "Έχετε {count} ανοιχτά αιτήματα, {name}. Το πιο πρόσφατο αφορά {subject}.",
+        "tickets_resolved": "Καλά νέα - όλα τα {count} αιτήματά σας έχουν επιλυθεί!",
+        "tickets_none": "Δεν έχετε αιτήματα υποστήριξης στο αρχείο.",
+        "customer_info": "Το email του λογαριασμού σας είναι {email} και το τηλέφωνο {phone}.",
+        "default": "Ορίστε τι βρήκα για εσάς."
+    },
+    "es": {
+        "subscription_active": "Estás en el plan {plan}, {name}. Son {price} dólares al mes con renovación automática {auto_renew}.",
+        "subscription_inactive": "Tu suscripción a {plan} está actualmente {status}.",
+        "balance_overdue": "Parece que tienes {overdue} dólares vencidos, {name}. ¿Quieres ayuda con eso?",
+        "balance_pending": "Tienes {pending} dólares pendientes, {name}. ¡Pero nada vencido!",
+        "balance_clear": "¡Buenas noticias, {name}! Tu saldo está al día.",
+        "invoices_single": "Tienes una factura de {amount} dólares, y está {status}.",
+        "invoices_multiple": "Veo {count} facturas. La más reciente es de {amount} dólares, actualmente {status}.",
+        "plan_details": "Estás en {name_plan} por {price} dólares al mes. Tienes {data} GB de datos y soporte nivel {support}.",
+        "tickets_open": "Tienes {count} tickets abiertos, {name}. El más reciente trata sobre {subject}.",
+        "tickets_resolved": "Buenas noticias - ¡todos tus {count} tickets de soporte han sido resueltos!",
+        "tickets_none": "No tienes tickets de soporte registrados.",
+        "customer_info": "El email de tu cuenta es {email} y el teléfono es {phone}.",
+        "default": "Aquí está lo que encontré."
+    },
+    "fr": {
+        "subscription_active": "Vous êtes sur le forfait {plan}, {name}. C'est {price} dollars par mois avec renouvellement automatique {auto_renew}.",
+        "subscription_inactive": "Votre abonnement {plan} est actuellement {status}.",
+        "balance_overdue": "On dirait que vous avez {overdue} dollars en retard, {name}. Voulez-vous de l'aide ?",
+        "balance_pending": "Vous avez {pending} dollars en attente, {name}. Mais rien en retard !",
+        "balance_clear": "Bonne nouvelle, {name} ! Votre solde est à jour.",
+        "invoices_single": "Vous avez une facture de {amount} dollars, et elle est {status}.",
+        "invoices_multiple": "Je vois {count} factures. La plus récente est de {amount} dollars, actuellement {status}.",
+        "plan_details": "Vous êtes sur {name_plan} à {price} dollars par mois. Vous avez {data} Go de données et un support {support}.",
+        "tickets_open": "Vous avez {count} tickets ouverts, {name}. Le plus récent concerne {subject}.",
+        "tickets_resolved": "Bonne nouvelle - tous vos {count} tickets ont été résolus !",
+        "tickets_none": "Vous n'avez aucun ticket de support.",
+        "customer_info": "L'email de votre compte est {email} et le téléphone est {phone}.",
+        "default": "Voici ce que j'ai trouvé."
+    },
+    "de": {
+        "subscription_active": "Sie haben den {plan}-Plan, {name}. Das sind {price} Dollar pro Monat mit automatischer Verlängerung {auto_renew}.",
+        "subscription_inactive": "Ihr {plan}-Abonnement ist derzeit {status}.",
+        "balance_overdue": "Es sieht so aus, als hätten Sie {overdue} Dollar überfällig, {name}. Soll ich Ihnen helfen?",
+        "balance_pending": "Sie haben {pending} Dollar ausstehend, {name}. Aber nichts überfällig!",
+        "balance_clear": "Gute Nachrichten, {name}! Ihr Kontostand ist ausgeglichen.",
+        "invoices_single": "Sie haben eine Rechnung über {amount} Dollar, und sie ist {status}.",
+        "invoices_multiple": "Ich sehe {count} Rechnungen. Die letzte beträgt {amount} Dollar, derzeit {status}.",
+        "plan_details": "Sie nutzen {name_plan} für {price} Dollar pro Monat. Sie haben {data} GB Daten und {support}-Support.",
+        "tickets_open": "Sie haben {count} offene Tickets, {name}. Das letzte betrifft {subject}.",
+        "tickets_resolved": "Gute Nachrichten - alle Ihre {count} Support-Tickets wurden gelöst!",
+        "tickets_none": "Sie haben keine Support-Tickets.",
+        "customer_info": "Ihre Konto-E-Mail ist {email} und Telefon ist {phone}.",
+        "default": "Hier ist, was ich gefunden habe."
+    },
+    "ar": {
+        "subscription_active": "أنت على خطة {plan}، يا {name}. السعر {price} دولار شهرياً مع تجديد تلقائي {auto_renew}.",
+        "subscription_inactive": "اشتراكك في {plan} حالياً {status}.",
+        "balance_overdue": "يبدو أن لديك {overdue} دولار متأخر، يا {name}. هل تريد المساعدة؟",
+        "balance_pending": "لديك {pending} دولار معلق، يا {name}. لكن لا شيء متأخر!",
+        "balance_clear": "أخبار جيدة، يا {name}! رصيدك صافي.",
+        "invoices_single": "لديك فاتورة واحدة بقيمة {amount} دولار، وهي {status}.",
+        "invoices_multiple": "أرى {count} فواتير. الأحدث بقيمة {amount} دولار، وحالياً {status}.",
+        "plan_details": "أنت على {name_plan} بسعر {price} دولار شهرياً. لديك {data} جيجابايت بيانات ودعم {support}.",
+        "tickets_open": "لديك {count} تذاكر مفتوحة، يا {name}. الأحدث بخصوص {subject}.",
+        "tickets_resolved": "أخبار جيدة - تم حل جميع تذاكرك الـ {count}!",
+        "tickets_none": "ليس لديك أي تذاكر دعم.",
+        "customer_info": "البريد الإلكتروني لحسابك هو {email} والهاتف هو {phone}.",
+        "default": "ها هو ما وجدته لك."
+    }
+}
 
 
 # =============================================================================
@@ -1851,8 +2010,8 @@ def clean_tts_text(text):
     text = re.sub(r'\s+', ' ', text)
     
     # Check if text contains valid characters for any supported language
-    # Latin, Hebrew, Cyrillic, Arabic, CJK (Chinese/Japanese/Korean)
-    valid_chars = r'[a-zA-Z0-9\u0590-\u05FF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF]'
+    # Latin, Hebrew, Cyrillic, Arabic, CJK, Greek
+    valid_chars = r'[a-zA-Z0-9\u0590-\u05FF\u0400-\u04FF\u0600-\u06FF\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u0370-\u03FF]'
     
     if not text or not re.search(valid_chars, text):
         return None
@@ -1907,7 +2066,12 @@ NEGATIVE_INDICATORS = {
     # Italian
     'cancellare': 0.9, 'terminare': 0.9, 'lasciare': 0.8, 'cambiare': 0.75,
     'terribile': 0.7, 'orribile': 0.75, 'peggiore': 0.8, 'arrabbiato': 0.7,
-    'non funziona': 0.5, 'rotto': 0.55, 'problema': 0.4, 'deluso': 0.55
+    'non funziona': 0.5, 'rotto': 0.55, 'problema': 0.4, 'deluso': 0.55,
+
+    # Greek
+    'ακύρωση': 0.9, 'τερματισμός': 0.9, 'φεύγω': 0.8, 'αλλαγή': 0.75,
+    'απαίσιο': 0.7, 'χάλια': 0.75, 'χειρότερο': 0.8, 'θυμωμένος': 0.7, 'έξαλλος': 0.8,
+    'δεν δουλεύει': 0.5, 'χαλασμένο': 0.55, 'πρόβλημα': 0.4, 'θέμα': 0.35, 'απογοητευμένος': 0.55
 }
 
 POSITIVE_INDICATORS = {
@@ -1944,7 +2108,11 @@ POSITIVE_INDICATORS = {
     
     # Italian
     'grazie': 0.3, 'apprezzo': 0.4, 'grande': 0.4, 'eccellente': 0.5, 'fantastico': 0.5,
-    'utile': 0.4, 'perfetto': 0.45, 'amo': 0.5, 'felice': 0.4, 'soddisfatto': 0.4
+    'utile': 0.4, 'perfetto': 0.45, 'amo': 0.5, 'felice': 0.4, 'soddisfatto': 0.4,
+
+    # Greek
+    'ευχαριστώ': 0.3, 'εκτιμώ': 0.4, 'τέλεια': 0.4, 'εξαιρετικά': 0.5, 'καταπληκτικά': 0.5,
+    'χρήσιμο': 0.4, 'τέλειο': 0.45, 'λατρεύω': 0.5, 'χαρούμενος': 0.4, 'ικανοποιημένος': 0.4
 }
 
 def analyze_sentiment(text, language='en', conversation_history=None):
@@ -2001,7 +2169,7 @@ def analyze_sentiment(text, language='en', conversation_history=None):
         action = None
     
     # Check for explicit cancellation intent (always high risk)
-    cancel_words = ['cancel', 'terminate', 'unsubscribe', 'לבטל', 'ביטול', 'להתנתק']
+    cancel_words = ['cancel', 'terminate', 'unsubscribe', 'לבטל', 'ביטול', 'להתנתק', 'ακύρωση', 'διακοπή']
     for word in cancel_words:
         if word in text_lower:
             churn_risk = "high"
@@ -2071,6 +2239,13 @@ def format_query_results(query_type, results, customer_name=None, lang="en"):
     """Format database results into natural conversational language"""
     name = customer_name.split()[0] if customer_name else ""  # First name only
     
+    # Normalize lang
+    if '-' in lang:
+        lang = lang.split('-')[0].lower()
+
+    # Get templates for language, fallback to English
+    templates = QUERY_RESPONSE_TEMPLATES.get(lang, QUERY_RESPONSE_TEMPLATES['en'])
+
     if not results or len(results) == 0:
         return get_natural_response('info_not_found', lang=lang, type=query_type)
     
@@ -2082,9 +2257,9 @@ def format_query_results(query_type, results, customer_name=None, lang="en"):
         auto_renew = "on" if r.get('auto_renew') else "off"
         
         if status == 'active':
-            return f"You're on the {plan} plan, {name}. That's {price} dollars a month with auto-renewal {auto_renew}."
+            return templates['subscription_active'].format(plan=plan, name=name, price=price, auto_renew=auto_renew)
         else:
-            return f"Your {plan} subscription is currently {status}."
+            return templates['subscription_inactive'].format(plan=plan, status=status)
     
     elif query_type == 'balance':
         r = results[0]
@@ -2092,11 +2267,11 @@ def format_query_results(query_type, results, customer_name=None, lang="en"):
         overdue = float(r.get('overdue_amount', 0))
         
         if overdue > 0:
-            return f"Looks like you have {overdue:.2f} dollars overdue, {name}. Want me to help you sort that out?"
+            return templates['balance_overdue'].format(overdue=f"{overdue:.2f}", name=name)
         elif pending > 0:
-            return f"You've got {pending:.2f} dollars pending, {name}. Nothing overdue though!"
+            return templates['balance_pending'].format(pending=f"{pending:.2f}", name=name)
         else:
-            return f"Good news, {name}! Your balance is all clear."
+            return templates['balance_clear'].format(name=name)
     
     elif query_type == 'invoices':
         count = len(results)
@@ -2105,9 +2280,9 @@ def format_query_results(query_type, results, customer_name=None, lang="en"):
         status = latest.get('status', 'unknown')
         
         if count == 1:
-            return f"You've got one invoice for {amount} dollars, and it's {status}."
+            return templates['invoices_single'].format(amount=amount, status=status)
         else:
-            return f"I see {count} invoices. Your most recent one is {amount} dollars, currently {status}."
+            return templates['invoices_multiple'].format(count=count, amount=amount, status=status)
     
     elif query_type == 'plan':
         r = results[0]
@@ -2116,24 +2291,27 @@ def format_query_results(query_type, results, customer_name=None, lang="en"):
         data = r.get('data_limit_gb', 'unlimited')
         support = r.get('support_level', 'standard')
         
-        return f"You're on {name_plan} at {price} dollars per month. You've got {data} gigs of data and {support} level support."
+        return templates['plan_details'].format(name_plan=name_plan, price=price, data=data, support=support)
     
     elif query_type == 'tickets':
         open_tickets = [t for t in results if t.get('status') == 'open']
+        count = len(open_tickets)
+
         if open_tickets:
             subject = open_tickets[0].get('subject', 'an open issue')
-            return f"You have {len(open_tickets)} open ticket{'s' if len(open_tickets) > 1 else ''}, {name}. The most recent is about {subject}."
+            plural = "s" if count > 1 else ""
+            return templates['tickets_open'].format(count=count, plural=plural, name=name, subject=subject)
         elif results:
-            return f"Good news - all your {len(results)} support tickets have been resolved!"
-        return "You don't have any support tickets on file."
+            return templates['tickets_resolved'].format(count=len(results))
+        return templates['tickets_none']
     
     elif query_type == 'customer_info':
         r = results[0]
         email = r.get('email', 'not set')
         phone = r.get('phone', 'not set')
-        return f"Your account email is {email} and phone is {phone}."
+        return templates['customer_info'].format(email=email, phone=phone)
     
-    return "Here's what I found for you."
+    return templates['default']
 
 
 def generate_card_payload(query_type, results):
@@ -2550,7 +2728,9 @@ async def synthesize_with_xtts(text: str, settings: dict, max_retries: int = 2) 
     
     # FIX v3.1.22: Use 'or' to handle empty string fallback (not just None)
     # UI sends 'tts_voice', backend default uses 'tts_speaker'
-    speaker = settings.get('tts_speaker') or settings.get('tts_voice') or ''
+    speaker = settings.get('tts_speaker') or settings.get('tts_voice') or 'default'
+    if not speaker.strip():
+        speaker = 'default'
     
     logging.info(f"[TTS] Settings - tts_voice: '{settings.get('tts_voice')}', tts_speaker: '{settings.get('tts_speaker')}'")
     logging.info(f"[TTS] Final speaker: '{speaker}'")
@@ -2565,9 +2745,12 @@ async def synthesize_with_xtts(text: str, settings: dict, max_retries: int = 2) 
     if len(text) < 200:
         cache_key = f"tts:{hash(text)}:{language}:{speaker}"
         cached = _tts_cache.get(cache_key)
-        if cached:
-            logging.info(f"[TTS] Cache HIT for: {text[:30]}...")
+        if cached and len(cached) > 0:
+            logging.info(f"[TTS] Cache HIT for: {text[:30]}... ({len(cached)} bytes)")
             return cached
+        elif cached is not None:
+            # Found invalid (empty) entry in cache, clear it
+            logging.warning(f"[TTS] Invalid cache entry found, ignoring")
     else:
         cache_key = None
     
@@ -2669,6 +2852,8 @@ async def stream_tts_for_sentence(websocket, text_to_synthesize, stream_start_ti
                 chunk = audio_data[i:i + chunk_size]
                 metrics['llm_tts_metrics']['tts_chunk_latencies'].append(time.time() - stream_start_time)
                 await websocket.send(chunk)
+        else:
+            logging.warning(f"[TTS Task] Failed to generate audio for: \"{text_to_synthesize[:30]}...\"")
                 
     except Exception as e:
         logging.error(f"[TTS Task] Error: {e}")
@@ -2698,6 +2883,7 @@ LANGUAGE_INSTRUCTIONS = {
     "ja": "言語ルール：日本語のみで回答してください。ユーザーが他の言語を話しても、理解した上で必ず日本語で回答してください。",
     "hu": "NYELV: CSAK magyarul válaszolj. Még ha a felhasználó más nyelven beszél is, értsd meg de MINDIG magyarul válaszolj.",
     "ko": "언어 규칙: 한국어로만 답변해야 합니다. 사용자가 다른 언어로 말해도 이해하되 항상 한국어로 답변하세요.",
+    "el": "ΓΛΩΣΣΑ: ΠΡΕΠΕΙ να απαντάτε ΜΟΝΟ στα Ελληνικά. Ακόμα κι αν ο χρήστης μιλάει άλλη γλώσσα, κατανοήστε τον αλλά απαντήστε ΠΑΝΤΑ στα Ελληνικά.",
 }
 
 # =============================================================================

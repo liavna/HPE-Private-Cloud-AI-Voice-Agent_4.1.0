@@ -1941,6 +1941,10 @@ TTS_LANGUAGES = {
         "display_name": "🇰🇷 Korean",
         "response_instruction": "\n\n언어 규칙: 한국어로만 답변해야 합니다. 사용자가 다른 언어로 말해도 이해하되 항상 자연스러운 대화체 한국어로 답변하세요.",
     },
+    "el": {
+        "display_name": "🇬🇷 Greek",
+        "response_instruction": "\n\nΓΛΩΣΣΑ: ΠΡΕΠΕΙ να απαντάτε ΜΟΝΟ στα Ελληνικά. Ακόμα κι αν ο χρήστης μιλάει άλλη γλώσσα, κατανοήστε τον αλλά απαντήστε ΠΑΝΤΑ στα Ελληνικά.",
+    },
 }
 
 # ASR Languages supported by Whisper (for input speech recognition)
@@ -3274,6 +3278,10 @@ def create_ui():
                             "hi": {
                                 "female": ["Chandra MacFarland", "Asya Anara", "Ige Behringer"],
                                 "male": ["Kumar Dahl", "Badr Odhiambo", "Suad Qasim"]
+                            },
+                            "el": {
+                                "female": ["Vjollca Johnnie", "Sofia Hellen"],
+                                "male": ["Viktor Menelaos", "Damjan Chapman"]
                             }
                         }
                         
@@ -3707,9 +3715,9 @@ def create_ui():
                 )
                 
                 clear_settings_btn.click(
-                    fn=lambda: "🗑️ Settings cleared! Refresh page to see defaults.",
+                    fn=lambda: "🗑️ Settings cleared! Reloading page...",
                     outputs=[settings_status],
-                    js="() => { window.settingsManager.clear(); return ''; }"
+                    js="() => { window.settingsManager.clear(); setTimeout(() => location.reload(), 1000); return ''; }"
                 )
         
         # Main save button handler (on Voice Chat tab)
@@ -4593,6 +4601,15 @@ def create_ui():
                         const settings = JSON.parse(saved);
                         console.log('[Settings] Loading saved settings...');
                         
+                        // VALIDATION: Sanity check critical settings to prevent breakage
+                        if (settings['tts_server_address'] &&
+                            !settings['tts_server_address'].includes('localhost') &&
+                            !settings['tts_server_address'].includes('.') &&
+                            !settings['tts_server_address'].includes(':')) {
+                            console.warn('[Settings] Invalid TTS URL detected, ignoring:', settings['tts_server_address']);
+                            delete settings['tts_server_address'];
+                        }
+
                         Object.keys(settings).forEach(id => {
                             if (id === 'db_enabled') {
                                 const checkbox = document.querySelector('#db_enabled input[type="checkbox"]');
